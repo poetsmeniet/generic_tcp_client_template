@@ -7,8 +7,33 @@
 #include <string.h>
 #include "tcp_client.h"
 #include <arpa/inet.h>
+#define MAXSZ 512
 
-// A quick client for a one-off connection
+extern int sendMessage(int *clientSocket, char *buffer, int reply){
+    if(reply == 1){
+        int rc;
+        char buf[MAXSZ];
+        memcpy(buf, buffer, strlen(buffer));
+
+        //Send 
+        rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
+        if(rc != -1)
+            printf("sent data: '%s', rc = %d\n", buf, rc);
+        else
+            return 0;
+
+        //Receive
+        rc = recv(*clientSocket, buf, MAXSZ, 0);
+        if(rc != -1)
+            printf("recv buffer: %s, rc recv: %d\n", buf, rc);
+        else
+            return 0;
+
+        return 1;
+    }
+    return 0;
+}
+
 extern int connectToServer(char *serverName, int serverPort){
     //Range check for serverPort
     if(serverPort < 1 && serverPort > 65535){
@@ -17,7 +42,6 @@ extern int connectToServer(char *serverName, int serverPort){
     }
 
     int clientSocket;
-    char buffer[1024];
     
     //struct sockaddr_in serverAddr;
     clientSocket = socket(PF_INET, SOCK_STREAM, 0);
@@ -50,14 +74,10 @@ extern int connectToServer(char *serverName, int serverPort){
         }
   
         printf("Connected..\n");
-        
-        //Send 
-        strcpy(buffer,"QUIT\r\n");
-        int rc1 = send(clientSocket,buffer,strlen(buffer),MSG_NOSIGNAL);
-        printf("sent data.. rc = %d\n", rc1);
 
-        rc1 = recv(clientSocket, buffer, 1024, 0);
-        printf("recv buffer: %s, rc recv: %d\n", buffer, rc1);
+        printf("client socket created: %d\n", clientSocket);
+        
+        return clientSocket;
     }
 
     return 0;
