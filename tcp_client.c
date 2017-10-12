@@ -7,7 +7,7 @@
 #include <string.h>
 #include "tcp_client.h"
 #include <arpa/inet.h>
-#define MAXSZ 512
+#define MAXSZ 1024
 
 extern int sendMessage(int *clientSocket, char *buffer, int reply){
     if(reply == 1){
@@ -38,12 +38,11 @@ extern int connectToServer(char *serverName, int serverPort){
     //Range check for serverPort
     if(serverPort < 1 && serverPort > 65535){
         printf("ServerPort must be of value between 1 and 65535\n");
-        return 1;
+        return 0;
     }
 
     int clientSocket;
     
-    //struct sockaddr_in serverAddr;
     clientSocket = socket(PF_INET, SOCK_STREAM, 0);
     
     //Get server address from hostname
@@ -60,8 +59,23 @@ extern int connectToServer(char *serverName, int serverPort){
     sprintf(service, "%d", serverPort);
 
     //Resulting struct 
-    int res1 = getaddrinfo(serverName, service, &hints, &res);
-    printf("getaddrinfo result code: %d\n", res1);
+    int rc;
+    rc = getaddrinfo(serverName, service, &hints, &res);
+    if(rc != 0){
+        printf("Error code for get address: %d\n", rc);
+        printf("\tEAI_AGAIN: %d\n", EAI_AGAIN);
+        printf("\tEAI_BADFLAGS: %d\n", EAI_BADFLAGS);
+        printf("\tEAI_FAIL: %d\n", EAI_FAIL);
+        printf("\tEAI_FAMILY: %d\n", EAI_FAMILY);
+        printf("\tEAI_MEMORY: %d\n", EAI_MEMORY);
+        printf("\tEAI_NONAME: %d\n", EAI_NONAME);
+        printf("\tEAI_SERVICE: %d\n", EAI_SERVICE);
+        printf("\tEAI_SOCKTYPE: %d\n", EAI_SOCKTYPE);
+        printf("\tEAI_SSYSTEM: %d\n", EAI_SYSTEM);
+        return 0;
+    }
+
+    printf("getaddrinfo result code: %d\n", rc);
 
     struct addrinfo *rp;
 
@@ -70,13 +84,11 @@ extern int connectToServer(char *serverName, int serverPort){
         int rc = connect(clientSocket, rp->ai_addr, rp->ai_addrlen);
         if(rc != 0){
           printf("Unable to connect to '%s', rc; %d\n", serverName, rc);
-          return 1;
+          return 0;
         }
   
         printf("Connected..\n");
 
-        printf("client socket created: %d\n", clientSocket);
-        
         return clientSocket;
     }
 
