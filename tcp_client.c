@@ -7,35 +7,37 @@
 #include <string.h>
 #include "tcp_client.h"
 #include <arpa/inet.h>
-#define MAXSZ 1024
+#define MAXSZ 19024
 
-extern int sendMessage(int *clientSocket, char *buffer, int replies){
+extern int sendMessage(int *clientSocket, char *buffer, int replies, respBuf *responses){
     int rc;
     char buf[MAXSZ];
     memcpy(buf, buffer, strlen(buffer));
 
-        //Send 
-        rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
-        if(rc != -1)
-            printf("sent data: '%s', rc = %d\n", buf, rc);
-        else
-            return 0;
+    rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
+    if(rc != -1)
+        printf("sent data: '%s', rc = %d\n", buf, rc);
+    else
+        return 0;
 
+    //Receive data for nr of expected replies
     int i;
-    for(i = 0; i <= replies; i++){
-        //Receive expexted amount of replies
-        rc = recv(*clientSocket, buf, MAXSZ, 0);
-        if(rc != -1)
-            printf("recv buffer: %s, rc recv: %d\n", buf, rc);
-        else
+    for(i = 0; i < replies; i++){
+        rc = recv(*clientSocket, buf, MAXSZ, MSG_WAITALL);
+        if(rc != -1){
+            responses[i].nr = i;
+            responses[i].buffer = malloc(rc * sizeof(char));
+            memcpy(responses[i].buffer, buf, rc);
+        }else{
             return 0;
+        }
     }
     return 1;
 }
 
 extern int connectToServer(char *serverName, int serverPort){
     //Range check for serverPort
-    if(serverPort < 1 && serverPort > 65535){
+    if(serverPort < 1 || serverPort > 65535){
         printf("ServerPort must be of value between 1 and 65535\n");
         return 0;
     }
