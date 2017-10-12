@@ -3,7 +3,7 @@
 //This file demonstrates usage of tcp_client library
 
 int main(void){
-    char serverName[] = "d1igiploert.nl";
+    char serverName[] = "digiploert.nl";
     int serverPort =  80;
     
     int clientSocket;
@@ -14,7 +14,7 @@ int main(void){
     }
 
     int rc;
-    rc = sendMessage(&clientSocket, "GET /index.php HTTP/1.1\nhost: www.digiploert.nl\n\n", 1);
+    rc = sendMessage(&clientSocket, "GET /index.php HTTP/1.1\nhost: www.digiploert.nl\n\n", 2);
     if(rc == 0){
         printf("Sending messsage failed.\n");
         return 1;

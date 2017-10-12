@@ -9,11 +9,10 @@
 #include <arpa/inet.h>
 #define MAXSZ 1024
 
-extern int sendMessage(int *clientSocket, char *buffer, int reply){
-    if(reply == 1){
-        int rc;
-        char buf[MAXSZ];
-        memcpy(buf, buffer, strlen(buffer));
+extern int sendMessage(int *clientSocket, char *buffer, int replies){
+    int rc;
+    char buf[MAXSZ];
+    memcpy(buf, buffer, strlen(buffer));
 
         //Send 
         rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
@@ -22,16 +21,16 @@ extern int sendMessage(int *clientSocket, char *buffer, int reply){
         else
             return 0;
 
-        //Receive
+    int i;
+    for(i = 0; i <= replies; i++){
+        //Receive expexted amount of replies
         rc = recv(*clientSocket, buf, MAXSZ, 0);
         if(rc != -1)
             printf("recv buffer: %s, rc recv: %d\n", buf, rc);
         else
             return 0;
-
-        return 1;
     }
-    return 0;
+    return 1;
 }
 
 extern int connectToServer(char *serverName, int serverPort){
