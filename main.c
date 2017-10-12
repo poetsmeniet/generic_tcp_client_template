@@ -17,20 +17,21 @@ int main(void){
 
     //Send a message and get response(s)
     int rc;
-    int respCnt = 2;
+    int respCnt = 1;
     respBuf *responses = (respBuf*) malloc(respCnt * sizeof(respBuf));
-    rc = sendMessage(&clientSocket, "GET /test.html HTTP/1.1\nhost: digiploert.nl\n\n", respCnt, responses);
+    rc = sendMessage(&clientSocket, "GET /test.html HTTP/1.1\nhost: digiploert.nl\nConnection: Keep-Alive\n\n", 68,\
+            respCnt, responses);
     if(rc == 0){
         printf("Sending messsage failed.\n");
         return 1;
     }
-
-    //Print reulting response(s)
+    //Print response(s)
     int i;
     for(i = 0; i < respCnt; i++){
         printf("\n*********** response Nr %d:\n'%s'\n\n",responses[i].nr , responses[i].buffer);
     }
-    free(responses);
+    
+    //free(responses);
 
     //closeSocket();
 
