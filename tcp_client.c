@@ -8,33 +8,37 @@
 #include "tcp_client.h"
 #include <arpa/inet.h>
 #define MAXSZ 19024
+//This library does not support protocol specifics such as chunk encoding
 
-extern int sendMessage(int *clientSocket, char *buffer, int replies, respBuf *responses){
+extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int replies, respBuf *responses){
     int rc;
     char buf[MAXSZ];
-    if(strlen(buffer) > MAXSZ){
+    char rbuf[MAXSZ];
+
+    //Check size of buffers
+    if(len > MAXSZ){
         printf("Length of buffer exceeds max of %d\n", MAXSZ);
         return 0;
     }
 
-    memcpy(buf, buffer, strlen(buffer));
-
-    rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
+    //Send the buffer as requested by caller
+    memcpy(buf, buffer, len);
+    rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
     if(rc != -1)
-        printf("sent data: '%s', rc = %d\n", buf, rc);
+        printf("Sent request, rc = %d\n", rc);
     else
         return 0;
 
     //Receive data for nr of expected replies
     int i;
     for(i = 0; i < replies; i++){
-        //rc = recv(*clientSocket, buf, MAXSZ, MSG_WAITALL);
-        rc = recv(*clientSocket, buf, MAXSZ, 0);
+        rc = recv(*clientSocket, rbuf, MAXSZ, 0);
         if(rc != -1){
             responses[i].nr = i;
             responses[i].buffer = malloc(rc * sizeof(char));
-            memcpy(responses[i].buffer, buf, rc);
+            memcpy(responses[i].buffer, rbuf, rc);
         }else{
+            printf("Response NOT gotten..(req %s)\n\n", buffer);
             return 0;
         }
     }
@@ -82,8 +86,6 @@ extern int connectToServer(char *serverName, int serverPort){
         return 0;
     }
 
-    printf("getaddrinfo result code: %d\n", rc);
-
     struct addrinfo *rp;
 
     //For each address try to connect
@@ -94,7 +96,7 @@ extern int connectToServer(char *serverName, int serverPort){
           return 0;
         }
   
-        printf("Connected..\n");
+        printf("Connected to %s...\n", serverName);
 
         return clientSocket;
     }
