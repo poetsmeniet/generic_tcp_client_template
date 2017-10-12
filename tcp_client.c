@@ -12,6 +12,11 @@
 extern int sendMessage(int *clientSocket, char *buffer, int replies, respBuf *responses){
     int rc;
     char buf[MAXSZ];
+    if(strlen(buffer) > MAXSZ){
+        printf("Length of buffer exceeds max of %d\n", MAXSZ);
+        return 0;
+    }
+
     memcpy(buf, buffer, strlen(buffer));
 
     rc = send(*clientSocket,buf,strlen(buf),MSG_NOSIGNAL);
@@ -23,7 +28,8 @@ extern int sendMessage(int *clientSocket, char *buffer, int replies, respBuf *re
     //Receive data for nr of expected replies
     int i;
     for(i = 0; i < replies; i++){
-        rc = recv(*clientSocket, buf, MAXSZ, MSG_WAITALL);
+        //rc = recv(*clientSocket, buf, MAXSZ, MSG_WAITALL);
+        rc = recv(*clientSocket, buf, MAXSZ, 0);
         if(rc != -1){
             responses[i].nr = i;
             responses[i].buffer = malloc(rc * sizeof(char));

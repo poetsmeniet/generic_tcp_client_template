@@ -17,7 +17,7 @@ int main(void){
 
     //Send a message and get response(s)
     int rc;
-    int respCnt = 1;
+    int respCnt = 2;
     respBuf *responses = (respBuf*) malloc(respCnt * sizeof(respBuf));
     rc = sendMessage(&clientSocket, "GET /test.html HTTP/1.1\nhost: digiploert.nl\n\n", respCnt, responses);
     if(rc == 0){
