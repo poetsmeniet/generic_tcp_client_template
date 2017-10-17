@@ -21,25 +21,34 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int re
         return 0;
     }
 
-    //Send the buffer as requested by caller
-    memcpy(buf, buffer, len);
-    rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
-    if(rc != -1)
-        printf("Sent request, rc = %d\n", rc);
-    else
-        return 0;
+    if(len > 0){
+        //Send the buffer as requested by caller
+        memcpy(buf, buffer, len);
+        rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
+        if(rc != -1){
+            printf("Sent request, rc = %d, len = %d\n", rc, len);
+        }else{
+            printf("Did not Send request, rc = %d, len = %d\n", rc, len);
+            return 0;
+        }
+    }else{
+        printf("Skipping msg send..\n");
+    }
 
-    //Receive data for nr of expected replies
+    //Receive data for nr of expected replies (depr this)
     int i;
     for(i = 0; i < replies; i++){
+
+        //rc = recv(*clientSocket, rbuf, MAXSZ, MSG_WAITALL);
+        //rc = recv(*clientSocket, rbuf, MAXSZ, MSG_DONTWAIT);
         rc = recv(*clientSocket, rbuf, MAXSZ, 0);
         if(rc != -1){
             responses[i].nr = i;
             responses[i].buffer = malloc(rc * sizeof(char));
             memcpy(responses[i].buffer, rbuf, rc);
         }else{
+            //Debug..
             printf("Response NOT gotten..(req %s)\n\n", buffer);
-            return 0;
         }
     }
     return 1;
@@ -55,6 +64,19 @@ extern int connectToServer(char *serverName, int serverPort){
     int clientSocket;
     
     clientSocket = socket(PF_INET, SOCK_STREAM, 0);
+
+    //Set socket timeout
+    struct timeval timeout;      
+    timeout.tv_sec = 11;
+    timeout.tv_usec = 0;
+
+    if (setsockopt (clientSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
+                sizeof(timeout)) < 0)
+        perror("setsockopt failed\n");
+
+    if (setsockopt (clientSocket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
+                sizeof(timeout)) < 0)
+        perror("setsockopt failed\n");
     
     //Get server address from hostname
     struct addrinfo hints;
