@@ -26,13 +26,13 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int re
         memcpy(buf, buffer, len);
         rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
         if(rc != -1){
-            printf("Sent request, rc = %d, len = %d\n", rc, len);
+            //printf("Sent request, rc = %d, len = %d\n", rc, len);
         }else{
             printf("Did not Send request, rc = %d, len = %d\n", rc, len);
             return 0;
         }
     }else{
-        printf("Skipping msg send..\n");
+        //printf("Skipping msg send..\n");
     }
 
     //Receive data for nr of expected replies (depr this)
@@ -48,13 +48,15 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int re
             memcpy(responses[i].buffer, rbuf, rc);
         }else{
             //Debug..
-            printf("Response NOT gotten..(req %s)\n\n", buffer);
+            //printf("Response NOT gotten..(req %s)\n\n", buffer);
+            //Add rc
+            return 0;
         }
     }
     return 1;
 }
 
-extern int connectToServer(char *serverName, int serverPort){
+extern int connectToServer(char *serverName, int serverPort, int sockTimeout){
     //Range check for serverPort
     if(serverPort < 1 || serverPort > 65535){
         printf("ServerPort must be of value between 1 and 65535\n");
@@ -67,7 +69,7 @@ extern int connectToServer(char *serverName, int serverPort){
 
     //Set socket timeout
     struct timeval timeout;      
-    timeout.tv_sec = 11;
+    timeout.tv_sec = sockTimeout;
     timeout.tv_usec = 0;
 
     if (setsockopt (clientSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
