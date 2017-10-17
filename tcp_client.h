@@ -9,7 +9,7 @@ typedef struct responsesBuffer{
 
 /*Evey call must be preceded by this function to initiate
   a connection to server*/
-extern int connectToServer(char *serverName, int serverPort);
+extern int connectToServer(char *serverName, int serverPort, int sockTimeout);
 
 /*Sending a message to connected server;
  - Use returned clientsocket from connectToServer
