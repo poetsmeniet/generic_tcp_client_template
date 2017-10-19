@@ -27,7 +27,7 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
         memcpy(buf, buffer, len);
         rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
         if(rc != -1){
-            printf("Sent request, rc = %d, len = %d\n", rc, len);
+            //printf("Sent request, rc = %d, len = %d\n", rc, len);
         }else{
             printf("Did not Send request, rc = %d, len = %d\n", rc, len);
             return 0;
