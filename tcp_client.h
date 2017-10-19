@@ -15,6 +15,7 @@ extern int connectToServer(char *serverName, int serverPort, int sockTimeout);
  - Use returned clientsocket from connectToServer
  - char *buffer is the message to be delivered
  - int replies is the number of expected replies from server*/
-extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int replies, respBuf *responses);
+extern int sendMessage(int *clientSocket, char *buffer, unsigned int len);
+extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies);
 
 #endif

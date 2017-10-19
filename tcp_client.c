@@ -10,10 +10,9 @@
 #define MAXSZ 19024
 //This library does not support protocol specifics such as chunk encoding
 
-extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int replies, respBuf *responses){
+extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
     int rc;
     char buf[MAXSZ];
-    char rbuf[MAXSZ];
 
     //Check size of buffers
     if(len > MAXSZ){
@@ -26,7 +25,7 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int re
         memcpy(buf, buffer, len);
         rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
         if(rc != -1){
-            //printf("Sent request, rc = %d, len = %d\n", rc, len);
+            printf("Sent request, rc = %d, len = %d\n", rc, len);
         }else{
             printf("Did not Send request, rc = %d, len = %d\n", rc, len);
             return 0;
@@ -35,27 +34,36 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len, int re
         //printf("Skipping msg send..\n");
     }
 
-    //Receive data for nr of expected replies (depr this)
-    int i;
-    for(i = 0; i < replies; i++){
-
-        //rc = recv(*clientSocket, rbuf, MAXSZ, MSG_WAITALL);
-        //rc = recv(*clientSocket, rbuf, MAXSZ, MSG_DONTWAIT);
-        rc = recv(*clientSocket, rbuf, MAXSZ, 0);
-        if(rc != -1){
-            responses[i].nr = i;
-            responses[i].buffer = malloc(rc * sizeof(char));
-            memcpy(responses[i].buffer, rbuf, rc);
-        }else{
-            //Debug..
-            //printf("Response NOT gotten..(req %s)\n\n", buffer);
-            //Add rc
-            return 0;
-        }
-    }
     return 1;
 }
 
+//Receive data from socket into struct
+//- returns: reply count
+extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
+    //Receive data for nr of expected replies (depr this?)
+    size_t i;
+    int rc;
+    char rbuf[MAXSZ];
+    size_t replyCnt = 0;
+
+    for(i = 0; i < replies; i++){
+        rc = recv(*clientSocket, rbuf, MAXSZ, 0);
+
+        if(rc == -1){
+            //do some error handling..
+        }else{
+            responses[i].nr = i;
+            responses[i].buffer = malloc(rc * sizeof(char));
+            memcpy(responses[i].buffer, rbuf, rc);
+            replyCnt++;
+        }
+    }
+
+    return replyCnt;
+}
+
+//Connects to "server" 
+//- returns socket
 extern int connectToServer(char *serverName, int serverPort, int sockTimeout){
     //Range check for serverPort
     if(serverPort < 1 || serverPort > 65535){
