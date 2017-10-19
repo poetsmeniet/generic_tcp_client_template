@@ -10,6 +10,8 @@
 #define MAXSZ 19024
 //This library does not support protocol specifics such as chunk encoding
 
+//Sends data over socket
+//returns: 0 on faulure, 1 success
 extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
     int rc;
     char buf[MAXSZ];
