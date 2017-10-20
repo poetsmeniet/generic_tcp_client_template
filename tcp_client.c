@@ -39,8 +39,8 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
     return 1;
 }
 
-//Receive data from socket into struct
-//- returns: reply count
+/*Receive a message from connected server
+ * - Returns nr of messages*/
 extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
     //Receive data for nr of expected replies (depr this?)
     size_t i;
