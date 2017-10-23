@@ -57,6 +57,7 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
             responses[i].nr = i;
             responses[i].buffer = malloc(rc * sizeof(char));
             memcpy(responses[i].buffer, rbuf, rc);
+            responses[i].buffer[rc] = '\0';
             replyCnt++;
         }
     }
