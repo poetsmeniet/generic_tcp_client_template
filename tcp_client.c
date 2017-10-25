@@ -27,7 +27,7 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
         memcpy(buf, buffer, len);
         rc = send(*clientSocket, buf, len, MSG_NOSIGNAL);
         if(rc != -1){
-            //printf("Sent request, rc = %d, len = %d\n", rc, len);
+            //printf("\tSent request, rc = %d, len = %d\n", rc, len);
         }else{
             printf("Did not Send request, rc = %d, len = %d\n", rc, len);
             return 0;
@@ -40,7 +40,7 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
 }
 
 /*Receive a message from connected server
- * - Returns nr of messages*/
+ * - Returns nr chars in message*/
 extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
     //Receive data for nr of expected replies (depr this?)
     size_t i;
@@ -51,18 +51,24 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
     for(i = 0; i < replies; i++){
         rc = recv(*clientSocket, rbuf, MAXSZ, 0);
 
-        if(rc == -1){
+        if(rc == 0){
             //do some error handling..
+            return -2;
+        }else if(rc == -1){
+            //Ignore, socket timeout
         }else{
+            //Pass response back to caller
             responses[i].nr = i;
             responses[i].buffer = malloc(rc * sizeof(char));
             memcpy(responses[i].buffer, rbuf, rc);
             responses[i].buffer[rc] = '\0';
             replyCnt++;
         }
+        rbuf[0] = '\0';
     }
 
-    return replyCnt;
+    //return replyCnt;
+    return rc;
 }
 
 //Connects to "server" 
