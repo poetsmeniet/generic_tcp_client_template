@@ -42,7 +42,7 @@ extern int sendMessage(int *clientSocket, char *buffer, unsigned int len){
 /*Receive a message from connected server
  * - Returns nr chars in message*/
 extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
-    //Receive data for nr of expected replies (depr this?)
+    //Receive data for nr of expected replies
     size_t i;
     int rc;
     char rbuf[MAXSZ];
@@ -59,7 +59,7 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
         }else{
             //Pass response back to caller
             responses[i].nr = i;
-            responses[i].buffer = malloc(rc * sizeof(char));
+            responses[i].buffer = malloc(1 + rc * sizeof(char));
             memcpy(responses[i].buffer, rbuf, rc);
             responses[i].buffer[rc] = '\0';
             replyCnt++;
@@ -67,7 +67,6 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
         rbuf[0] = '\0';
     }
 
-    //return replyCnt;
     return rc;
 }
 
