@@ -138,6 +138,8 @@ extern int connectToServer(char *serverName, int serverPort, int sockTimeout){
   
         printf("Connected to %s...\n", serverName);
 
+        freeaddrinfo(res);
+
         return clientSocket;
     }
 
