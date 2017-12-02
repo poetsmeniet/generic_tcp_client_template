@@ -50,6 +50,7 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
 
     for(i = 0; i < replies; i++){
         rc = recv(*clientSocket, rbuf, MAXSZ, 0);
+        responses[i].buffer = malloc(1 + rc * sizeof(char));
 
         if(rc == 0){
             //do some error handling..
@@ -59,7 +60,6 @@ extern int recvMessage(int *clientSocket, respBuf *responses, size_t replies){
         }else{
             //Pass response back to caller
             responses[i].nr = i;
-            responses[i].buffer = malloc(1 + rc * sizeof(char));
             memcpy(responses[i].buffer, rbuf, rc);
             responses[i].buffer[rc] = '\0';
             replyCnt++;
